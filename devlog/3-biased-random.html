@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biased Random Number Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .slider-container {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Biased Random Number Generator</h1>
+    
+    <div class="controls">
+        <div class="slider-container">
+            <label for="bias">Bias:</label>
+            <input type="range" id="bias" min="0" max="1" step="0.01" value="0.5">
+            <span id="biasValue">0.5</span>
+        </div>
+        <div class="slider-container">
+            <label for="influence">Influence:</label>
+            <input type="range" id="influence" min="0" max="1" step="0.01" value="0.5">
+            <span id="influenceValue">0.5</span>
+        </div>
+        <button id="redraw">Redraw</button>
+    </div>
+    
+    <canvas id="visualization" width="800" height="400"></canvas>
+    
+    <script>
+        // The random function with bias and influence
+        function random(min, max, bias = 0.5, strength = 0.5) {
+function randm(bias = 0.5, strength = 0.5) {
+    const base = Math.random();
+    
+    if (strength === 0) return base; // No bias
+    
+    // This formula properly biases toward the chosen value in an exponential manner
+    if (base < bias) {
+        return bias * Math.pow(base / bias, 1-strength);
+    } else {
+        return 1 - (1 - bias) * Math.pow((1 - base) / (1 - bias), 1- strength);
+    }
+}
+    
+    // This formula creates a bias toward the chosen value
+    const r = randm(bias, strength)
+
+            return r * (max - min) + min;
+        }
+
+        // DOM elements
+        const canvas = document.getElementById('visualization');
+        const ctx = canvas.getContext('2d');
+        const biasSlider = document.getElementById('bias');
+        const influenceSlider = document.getElementById('influence');
+        const biasValue = document.getElementById('biasValue');
+        const influenceValue = document.getElementById('influenceValue');
+        const redrawButton = document.getElementById('redraw');
+
+        // Update display values when sliders change
+        biasSlider.addEventListener('input', () => {
+            biasValue.textContent = biasSlider.value;
+        });
+
+        influenceSlider.addEventListener('input', () => {
+            influenceValue.textContent = influenceSlider.value;
+        });
+
+        // Draw visualization
+        function drawVisualization() {
+            const bias = parseFloat(biasSlider.value);
+            const influence = parseFloat(influenceSlider.value);
+            const width = canvas.width;
+            const height = canvas.height;
+            const pointCount = 2000;
+            
+            // Clear canvas
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#eee';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= width; x += width / 10) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            
+            // Draw bias line
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            const biasX = bias * width;
+            ctx.beginPath();
+            ctx.moveTo(biasX, 0);
+            ctx.lineTo(biasX, height);
+            ctx.stroke();
+            
+            // Generate and plot random points
+            ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+            for (let i = 0; i < pointCount; i++) {
+                const x = random(0, 1, bias, influence) * width;
+                const y = Math.random() * height;
+                ctx.fillRect(x, y, 3, 3);
+            }
+            
+            // Draw histogram
+            const bins = 50;
+            const histogram = new Array(bins).fill(0);
+            
+            for (let i = 0; i < pointCount * 5; i++) {
+                const x = random(0, 1, bias, influence);
+                const bin = Math.floor(x * bins);
+                if (bin >= 0 && bin < bins) {
+                    histogram[bin]++;
+                }
+            }
+            
+            const maxCount = Math.max(...histogram);
+            ctx.fillStyle = 'rgba(0, 128, 0, 0.7)';
+            
+            for (let i = 0; i < bins; i++) {
+                const binWidth = width / bins;
+                const binHeight = (histogram[i] / maxCount) * (height * 0.8);
+                ctx.fillRect(i * binWidth, height - binHeight, binWidth, binHeight);
+            }
+            
+            // Add labels
+            ctx.fillStyle = 'black';
+            ctx.font = '14px Arial';
+            ctx.fillText(`Bias: ${bias.toFixed(2)}`, 10, 20);
+            ctx.fillText(`Influence: ${influence.toFixed(2)}`, 10, 40);
+        }
+
+        // Initial draw
+        drawVisualization();
+        
+        // Redraw when sliders change or button is clicked
+        biasSlider.addEventListener('input', drawVisualization);
+        influenceSlider.addEventListener('input', drawVisualization);
+        redrawButton.addEventListener('click', drawVisualization);
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = UTF-8>
+        <meta name = viewport content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'>
+        <meta name = description content = 'DESCRIPTION'>
+        <meta name = author content = 'Joachim Ford'>
+
+        <meta property = og:title content = 'Joachim Ford'>
+        <meta property = og:description content = 'DESCRIPTION'>
+        <meta property = og:image content = IMAGE>
+
+        <link rel="icon" type="image/png" href="fav/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="fav/favicon.svg" />
+        <link rel="shortcut icon" href="fav/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="fav/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Balance Fish" />
+        <link rel="manifest" href="fav/site.webmanifest" />
+
+        <title>Balance Fish</title>
+
+        <link rel = stylesheet href = src/style.css>
+    </head>
+    <body>
+        <canvas id = canvas></canvas>
+        <canvas id = fx-canvas></canvas>
+
+        <!-- Global functions -->
+        <script src = src/audio.js></script>
+        <script src = src/functions.js></script>
+
+        <!-- Create the game -->
+        <script src = src/map.js></script>
+        <script src = src/game.js></script>
+        <script src = src/hero.js></script>
+        <script src = src/camera.js></script>
+
+        <!-- Actors -->
+        <script src = src/barrier.js></script>
+        <script src = src/powers.js></script>
+        <script src = src/cables.js></script>
+        <script src = src/ugly-fish.js></script>
+        <script src = src/shark.js></script>
+        <script src = src/shrimp.js></script>
+        <script src = src/resistor.js></script>
+        <script src = src/giant-plug.js></script>
+
+        <!-- Initialize the game -->
+        <script src = src/init.js></script>
+    </body>
+</html>

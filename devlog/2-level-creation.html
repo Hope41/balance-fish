@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = UTF-8>
+        <meta name = viewport content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'>
+        <meta name = description content = DESCRIPTION>
+        <meta name = author content = 'Joachim Ford'>
+
+        <link rel="icon" type="image/png" href="fav/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="fav/favicon.svg" />
+        <link rel="shortcut icon" href="fav/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="fav/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Level Editor" />
+        <link rel="manifest" href="fav/site.webmanifest" />
+
+        <meta property = og:title content = 'Joachim Ford'>
+        <meta property = og:description content = DESCRIPTION>
+        <meta property = og:image content = IMAGE>
+
+        <title>Level Editor ~ Joachim Ford</title>
+
+        <style>
+            html {
+                height: 100%;
+            }
+
+            body {
+                background: #fff;
+                margin: 0;
+                overflow: hidden;
+                user-select: none;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                touch-action: none;
+                position: relative;
+                height: 100%;
+            }
+
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+
+            #side-panel {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 30px;
+                background-color: #0009;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                color: #fff;
+                max-width: 450px;
+                height: 100%;
+                overflow: scroll;
+                font-size: 19px;
+                font-family: monospace, sans-serif;
+                transition: .4s ease-in-out;
+                pointer-events: all;
+            }
+
+            #side-panel.hidden {
+                transform: translateX(100%);
+                pointer-events: none;
+            }
+
+            #side-panel > span, .flex-x {
+                width: 100%;
+                display: flex;
+                gap: 5px;
+                align-items: center;
+            }
+
+            input {
+                cursor: pointer;
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+                border: 1px #1e2457 solid;
+                background-color: #191421;
+                border-radius: 5px;
+                padding: 10px 15px;
+                color: #fff;
+                font-size: 16px;
+                font-family: monospace, sans-serif;
+                cursor: pointer;
+                transition: .1s;
+            }
+
+            button:hover {
+                background-color: #2c2d56;
+                border: 1px #2e2f62 solid;
+            }
+
+            button:active {
+                transform: scale(.95);
+            }
+
+            label {
+                width: 100%;
+                background-color: #000;
+                border: 1px #373759 solid;
+                border-radius: 2px;
+                padding: 0;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            label:hover {
+                background-color: #27273f;
+            }
+
+            hr {
+                width: 100%;
+                border: 1px solid #0006;
+            }
+
+            #alert-window {
+                pointer-events: none;
+                opacity: 0;
+                transition: .1s;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                width: 400px;
+                max-height: 50%;
+                overflow: scroll;
+                transform: translate(-50%, -50%);
+                background-color: #000b;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                padding: 30px;
+                border: 1px #2b2b42 solid;
+                border-radius: 10px;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #alert-window.open {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            #alert-window span {
+                width: fit-content;
+                font-size: 20px;
+                color: #fff;
+                font-family: monospace, sans-serif;
+            }
+
+            #alert-window div {
+                width: 100%;
+                display: flex;
+                gap: 15px
+            }
+
+            .tall {
+                display: flex;
+                flex-direction: column;
+                border-radius: 5px;
+                border: 1px rgb(78, 166, 65) solid;
+                padding: 5px;
+                gap: 5px;
+                background-color: #000;
+            }
+
+            .all-shapes-hold {
+                width: 100%;
+                min-height: 300px;
+                overflow: scroll;
+            }
+
+            span.small {
+                font-size: 14px;
+                color: #999;
+                margin-right: 10px;
+            }
+
+            .shape {
+                border-radius: 5px;
+                cursor: pointer;
+                padding: 4px 10px;
+                background-color: #000;
+                font-size: 15px;
+            }
+
+            .shape:hover {
+                background-color: #2d2d3d;
+            }
+
+            .shape.select {
+                background-color: #133;
+            }
+
+            .shape.select:hover {
+                background-color: #244;
+            }
+
+            #shape-stats {
+                background-color: #000;
+                padding: 10px;
+                border-radius: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                border: 1px rgb(62, 119, 51) solid;
+            }
+
+            #shape-stats #buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px
+            }
+
+            #shape-stats #buttons.hide {
+                display: none
+            }
+
+            #shape-stats span {
+                text-align: center;
+            }
+
+            textarea {
+                background-color: #262535;
+                border: 1px rgb(91, 152, 82) solid;
+                border-radius: 5px;
+                padding: 10px;
+                resize: none;
+                outline: 0px rgb(57, 119, 51) solid;
+                transition: .1s;
+                border: 3px transparent solid;
+                color: #fff;
+                font-family: monospace, sans-serif;
+                font-size: 14px;
+                min-height: 100px;
+            }
+
+            textarea:focus {
+                outline: 1px rgb(73, 119, 51) solid;
+                border: 3px rgb(80, 183, 69) solid;
+            }
+
+            path {
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+
+            #tool-panel {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #tool-panel button {
+                width: 50px;
+                height: 50px;
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px #000 solid;
+                transition: .2s;
+            }
+
+            #types button {
+                flex: 1 1 30%;
+                min-width: 0;
+                border: 2px #000 solid;
+                transition: .2s;
+            }
+
+            #tool-panel button.selected, #types button.selected, #presets-hold button.selected {
+                border: 2px rgb(51, 119, 54) solid;
+            }
+
+            #types {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            button.hide {
+                display: none;
+            }
+
+            input {
+                background-color: #000;
+                padding: 5px 10px;
+                border: 1px #333b2e solid;
+                border-radius: 4px;
+                outline: none;
+                font-family: monospace, sans-serif;
+                font-size: 13px;
+                color: #fff
+            }
+
+            .flex-x {
+                font-size: 13px;
+            }
+
+            .dangerous {
+                position: relative;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: transparent
+            }
+
+            .dangerous:hover {
+                background-color: #0007;
+            }
+
+            .dangerous::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: calc(100% + 5px);
+                height: calc(100% + 5px);
+                border: 3px #000 solid;
+                transform: translate(-50%, -50%);
+                border-radius: 10px;
+            }
+
+            .option-hold {
+                display: flex;
+                gap: 10px
+            }
+
+            .delete {
+                width: 50px;
+                flex: 1 1 auto;
+                background-color: #900;
+            }
+
+            .delete:hover {
+                background-color: #500;
+            }
+
+            #presets-hold {
+                display: flex;
+                flex-direction: column;
+                gap: 10px
+            }
+
+            #save-window, #help-window {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 6, 85, 0.867);
+                border-radius: 10px;
+                border: 1px rgb(85, 92, 187) solid;
+                transform: translate(-50%, -50%) scale(.9);
+                color: #fff;
+                padding: 40px;
+                font-size: 20px;
+                font-family: monospace, sans-serif;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                opacity: 0;
+                pointer-events: none;
+                transition: .2s;
+                overflow: scroll;
+            }
+
+            #save-window.open, #help-window.open {
+                opacity: 1;
+                pointer-events: all;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            #code-replace-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px
+            }
+
+            #code-replace-list div {
+                display: flex;
+                gap: 5px
+            }
+
+            #code-replace-list .in-danger input {
+                background-color: #400;
+            }
+
+            #close-save-window, #close-help-window {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                background-color: #000;
+                border-radius: 10px;
+                cursor: pointer;
+                border: 1px rgb(85, 96, 153) solid;
+                padding: 13px;
+            }
+
+            #close-save-window:hover, #close-help-window:hover {
+                background-color: #191421;
+            }
+
+            .check-hold {
+                width: 100%;
+                display: flex;
+                gap: 10px;
+                padding: 5px 0;
+            }
+
+            .check-hold input {
+                width: fit-content;
+            }
+
+            * {box-sizing: border-box}
+        </style>
+    </head>
+    <body>
+        <canvas id = canvas></canvas>
+        <div id = tool-panel>
+            <button id = arrow-selector>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -7 14 17">
+                    <path d="M 0 0 L 3 2 L 0 6 L 3 8 L 6 4 L 9 6 L 10 -5 Z" stroke="#fff" stroke-width="1" fill="none"/>
+                </svg>
+            </button>
+            <button id = pen-selector class = selected>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 12 15">
+                    <path d="M 2 -1 L -1 1 L 6 11 L 9 12 L 9 9 Z" stroke="#fff" stroke-width="1" fill="none"/>
+                </svg>
+            </button>
+            <button id = save-changes>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -3.5 4 4">
+                    <path d="M 0 0 L 0 -3 L 2 -3 L 3 -2 L 3 0 Z M 1 -1 L 2 -1 L 2 -2" stroke="#fff" stroke-width=".4" fill="none"/>
+                </svg>
+            </button>
+            <button id = help>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-3 -6 26 35.5">
+                    <path d="M 0 2 L 5 -3 L 15 -3 L 20 2 L 20 9 L 10 13 L 10 17 M 8.5 25 A 1 1 0 0 0 11.5 25 A 1 1 0 0 0 8.5 25" stroke="#fff" stroke-width="2.5" fill="none"/>
+                </svg>
+            </button>
+        </div>
+        <div id = side-panel>
+            <span>
+                Grid<input id = grid type = range min = 0 max = 99 step = 1><div id=grid-val></div>
+            </span>
+            <span>
+                Length<input id = length type = range min = 0 max = 99 step = 1><div id=length-val></div>
+            </span>
+            <span>
+                Smooth<input id = smooth type = range min = 0 max = 99 step = 1><div id=smooth-val></div>
+            </span>
+            <span>
+                Fill<label for = fill><input type = checkbox id = fill></label>
+            </span>
+            <span>
+                Loop<label for = loop><input type = checkbox id = loop></label>
+            </span>
+            <span>
+                Snap<label for = snap-to-grid><input type = checkbox id = snap-to-grid></label>
+            </span>
+            <span>
+                Rule<label for = direction><input type = checkbox id = direction></label>
+            </span>
+            <div id = types>
+                <button class = 'option selected' id = poly-mode>Poly</button>
+                <button class = option id = rect-mode>Rect</button>
+                <button class = option id = point-mode>Point</button>
+            </div>
+            <div id = presets-hold>
+
+            </div>
+            <div class = all-shapes-hold>
+                <div class = tall id = all-shapes>
+                </div>
+            </div>
+            <div id = shape-stats>
+                <input value = shape-name id = shape-name>
+                <span id = next></span>
+                <div id = buttons class = hide>
+                    <button id = move-up class = dangerous>Move Up</button>
+                    <button id = delete-path>Delete</button>
+                    <button id = delete-segment>Delete Segment</button>
+                    <button id = continue-from-here>Continue</button>
+                    <button id = edit-shape>Edit</button>
+                    <button id = reverse-shape>Reverse</button>
+                    <input id = shape-w placeholder = w>
+                    <input id = shape-h placeholder = h>
+                    <textarea id = edit-data placeholder = "{&#10;  type: 'solid',&#10;  color: 'green'&#10;}"></textarea>
+                    <span class = flex-x>
+                        Hue <input id = hue placeholder = 'Enter value here' type = range min = 0 max = 360>
+                    </span>
+
+                    <input id = preset-name placeholder = 'preset name'>
+                    <button id = add-preset>Add Preset</button>
+                </div>
+            </div>
+        </div>
+
+        <div id = save-window>
+            <div id = close-save-window>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -3.5 4 4">
+                    <path d="M 0 0 L 3 -3 M 0 -3 L 3 0" stroke="#fff" stroke-width=".5" fill="none"/>
+                </svg>
+            </div>
+            <h2>Load</h2>
+            <input type = file id = import-file>
+            <h2>Save</h2>
+            <span class = check-hold>File Name: <input id = file-name placeholder = filename>.json</span>
+            <button id = export-for-later>Save changes for later</button>
+
+            <h3>Export as Code - Data Queries</h3>
+            <div id = code-replace-list>
+            </div>
+            <button id = new-query>new query +</button>
+            <label class = check-hold><input id = include-hue class = check type = checkbox>Include hue</label>
+            <label class = check-hold><input id = enquote class = check type = checkbox>Enquote when not queried</label>
+            <label class = check-hold><input id = include-names class = check type = checkbox>Include names</label>
+            <label class = check-hold><input id = poly-include-dimensions class = check type = checkbox>Poly: include dimensions</label>
+            <label class = check-hold><input id = point-include-dimensions class = check type = checkbox>Point: include dimensions</label>
+            <label class = check-hold><input id = top-left-zero-zero class = check type = checkbox>Top Left: Zero Zero</label>
+            <textarea id = code-output></textarea>
+        </div>
+
+        <div id = help-window>
+            <div id = close-help-window>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -3.5 4 4">
+                    <path d="M 0 0 L 3 -3 M 0 -3 L 3 0" stroke="#fff" stroke-width=".5" fill="none"/>
+                </svg>
+            </div>
+            <h1>Help</h1>
+            <p>
+                Click on the screen and drag to create a polygon.
+            </p>
+            <p>
+                Select shape types on the left of the screen. You can choose between
+                Poly, Rect, and Point.
+            </p>
+            <p>
+                Add data to a specific shape in the data box when you select it.
+                If you'd like multiple shapes to keep the same data and hue, create
+                a new preset and then select it. You shall find created presets
+                underneath the overall shape options.
+            </p>
+            <p>
+                Right click on a select box to duplicate the selection.
+            </p>
+            <p>
+                Press the [del] key in edit mode to delete a series of points.
+                This is also a way to reduce the poly count.
+                Press [del] when multiple shapes are selected to delete shapes in
+                batches.
+            </p>
+            <p>
+                The "rule" checkbox lets you see what direction the selected polygon
+                is facing. This is important when using the tool to make levels that
+                require directional collision response.
+            </p>
+        </div>
+
+        <div id = alert-window>
+            <span id = alert-message></span>
+            <div>
+                <button id = ok>Okay!</button>
+                <button id = no>Cancel</button>
+            </div>
+        </div>
+
+        <script>
+            'use strict'
+            const toolPanel = document.getElementById('tool-panel')
+            const pen = document.getElementById('pen-selector')
+            const arrow = document.getElementById('arrow-selector')
+            const save = document.getElementById('save-changes')
+
+            const panelButtons = toolPanel.getElementsByTagName('button')
+            for (let i = 0; i < panelButtons.length; i ++) {
+                const item = panelButtons[i]
+                item.selectMe = () => {
+                    if (item.id == 'save-changes' || item.id == 'help') return
+                    for (let i = 0; i < panelButtons.length; i ++) {
+                        panelButtons[i].classList.remove('selected')
+                        deselect()
+                    }
+                    item.classList.add('selected')
+                }
+                item.addEventListener('click', () => item.selectMe())
+            }
+
+            const cvs = document.getElementById('canvas')
+            const ctx = cvs.getContext('2d')
+            const grid = document.getElementById('grid')
+            const snapToGrid = document.getElementById('snap-to-grid')
+            const direction = document.getElementById('direction')
+            const length = document.getElementById('length')
+            const smooth = document.getElementById('smooth')
+            const fill = document.getElementById('fill')
+            const panel = document.getElementById('side-panel')
+            const moveUp = document.getElementById('move-up')
+            const deletePath = document.getElementById('delete-path')
+            const deleteSeg = document.getElementById('delete-segment')
+            const continueFromHere = document.getElementById('continue-from-here')
+            const editShape = document.getElementById('edit-shape')
+            const reverseShape = document.getElementById('reverse-shape')
+            const editData = document.getElementById('edit-data')
+            const shapeName = document.getElementById('shape-name')
+            const shapeButtons = document.getElementById('buttons')
+            const loop = document.getElementById('loop')
+            const stats = document.getElementById('shape-stats')
+            const shapeW = document.getElementById('shape-w')
+            const shapeH = document.getElementById('shape-h')
+            const presetName = document.getElementById('preset-name')
+            const addPreset = document.getElementById('add-preset')
+
+            const saveWindow = document.getElementById('save-window')
+            const closeSave = document.getElementById('close-save-window')
+            closeSave.onmousedown = () => saveWindow.classList.remove('open')
+            save.onclick = () => {
+                saveWindow.classList.add('open')
+                generateCode()
+            }
+
+            const helpWindow = document.getElementById('help-window')
+            const closeHelp = document.getElementById('close-help-window')
+            closeHelp.onmousedown = () => helpWindow.classList.remove('open')
+            help.onclick = () => helpWindow.classList.add('open')
+
+            const KEY = 'level-editor-data'
+
+            // The gray thingy that tells you the index of the shape
+            const next = document.getElementById('next')
+            next.className = 'small'
+
+            const allShapes = document.getElementById('all-shapes')
+
+            const gridVal = document.getElementById('grid-val')
+            const lengthVal = document.getElementById('length-val')
+            const smoothVal = document.getElementById('smooth-val')
+
+            const alertWindow = document.getElementById('alert-window')
+            const alertMessage = document.getElementById('alert-message')
+            const ok = document.getElementById('ok')
+            const no = document.getElementById('no')
+
+            const polyMode = document.getElementById('poly-mode')
+            const rectMode = document.getElementById('rect-mode')
+            const pointMode = document.getElementById('point-mode')
+
+            function uploadFile(result, openPage = false) {
+                try {
+                    const jsonData = JSON.parse(result)
+                    arr = []
+                    presets = []
+                    for (let i = 0; i < jsonData.length; i ++) {
+                        const shape = jsonData[i]
+                        arr.push(shape)
+                    }
+                    updateShapeList()
+                    updatePresetList()
+                    generateCode()
+                }
+                catch (error) {
+                    newAlert((openPage ? 'Unable to load changes: ' : 'Invalid JSON: ') + error, () => {}, () => {})
+                }
+            }
+
+            const importFile = document.getElementById('import-file')
+            importFile.addEventListener('change', evt => {
+                const file = evt.target.files[0]
+                if (file) {
+                    const reader = new FileReader()
+
+                    reader.onload = e => {
+                        uploadFile(e.target.result)
+                    }
+
+                    reader.readAsText(file)
+                }
+            })
+
+            function generateFile() {
+                // GENERATE TEXT
+                let str = '['
+                for (let i = 0; i < arr.length; i ++) {
+                    const item = arr[i]
+                    str += '{"type":"'+item.type + '","hue":'+item.hue+',"name":"'+(item.name||item.nameElement.textContent)+'",'
+                    if (item.data) str += '"data":"'+item.data+'",'
+
+                    if (item.type == 'poly') {
+                        str += '"content":['
+                        for (let j = 0; j < item.content.length; j ++) {
+                            const unit = item.content[j]
+                            str += '{"x":'+unit.x+',"y":'+unit.y+'}'+(j<item.content.length-1?',':'')
+                        }
+                        str += ']'
+                    }
+                    else if (item.type == 'rect') {
+                        str += '"x":'+item.x+',"y":'+item.y+',"w":'+item.w+',"h":'+item.h
+                    }
+                    else if (item.type == 'point') {
+                        str += '"x":'+item.x+',"y":'+item.y
+                    }
+                    str += '}'+(i<arr.length-1?',':'')
+                }
+                str += ']'
+                return str
+            }
+
+            const exportForLater = document.getElementById('export-for-later')
+            const fileName = document.getElementById('file-name')
+
+            const date = new Date()
+            fileName.value = 'level-editor-'+date.getTime()
+
+            fileName.onfocus = () => fileName.select()
+
+            exportForLater.onclick = () => {
+                const link = document.createElement('a')
+                const str = generateFile()
+
+                // DOWNLOAD FILE
+                link.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(str))
+                link.setAttribute('download', fileName.value + '.json')
+
+                link.style.display = 'none'
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+            }
+
+            const codeReplace = document.getElementById('code-replace-list')
+            const newQuery = document.getElementById('new-query')
+            const includeHue = document.getElementById('include-hue')
+            const enquote = document.getElementById('enquote')
+            const output = document.getElementById('code-output')
+            const includeNames = document.getElementById('include-names')
+            const polyIncludeDimensions = document.getElementById('poly-include-dimensions')
+            const pointIncludeDimensions = document.getElementById('point-include-dimensions')
+            const topLeftAtZeroZero = document.getElementById('top-left-zero-zero')
+            let queries = []
+
+            // Generate code
+            function generateCode() {
+                let str = '['
+                const hue = includeHue.checked
+                const quote = enquote.checked
+                const names = includeNames.checked
+
+                let oftX = 'none'
+                let oftY = 'none'
+
+                if (topLeftAtZeroZero.checked) {
+                    for (let i = 0; i < arr.length; i ++) {
+                        const item = arr[i]
+
+                        if (item.type == 'poly') {
+                            let minX = 'none'
+                            let minY = 'none'
+
+                            for (let j = 0; j < item.content.length; j ++) {
+                                const unit = item.content[j]
+                                if (minX == 'none' || unit.x < minX) minX = unit.x
+                                if (minY == 'none' || unit.y < minY) minY = unit.y
+                            }
+
+                            if (minX != 'none' && minX < 0 && (oftX == 'none' || minX < oftX)) oftX = minX
+                            if (minY != 'none' && minY < 0 && (oftY == 'none' || minY < oftY)) oftY = minY
+                        }
+
+                        else {
+                            if (oftX != 'none' && item.x < 0 && (oftX == 'none' || item.x < oftX)) oftX = item.x
+                            if (oftY != 'none' && item.y < 0 && (oftY == 'none' || item.y < oftY)) oftY = item.y
+                        }
+                    }
+                }
+
+                if (oftX == 'none') oftX = 0
+                if (oftY == 'none') oftY = 0
+                console.log(oftX)
+                oftX *= -1
+                oftY *= -1
+
+                for (let i = 0; i < arr.length; i ++) {
+                    const item = arr[i]
+                    str += '{type:\''+item.type+'\','
+                    if (names) str += 'name:\''+(item.name||item.nameElement.textContent)+'\','
+                    if (hue) str += 'hue:'+item.hue+','
+                    if (item.data) {
+                        let replacedData = 0
+                        for (let j = 0; j < queries.length; j ++) {
+                            const query = queries[j]
+                            if (query._find.value.trim() == item.data.trim()) {
+                                replacedData = query._replace.value
+                                break
+                            }
+                        }
+                        const val = (replacedData ? replacedData : quote ? '\''+item.data+'\'':item.data)
+                        str += 'data:'+val+','
+                    }
+
+                    if (item.type == 'poly') {
+                        let minX = 'none'
+                        let minY = 'none'
+                        let maxX = 'none'
+                        let maxY = 'none'
+
+                        str += 'content:['
+                        for (let j = 0; j < item.content.length; j ++) {
+                            const unit = item.content[j]
+                            str += (unit.x+oftX)+','+(unit.y+oftY)+(j<item.content.length-1?',':'')
+
+                            if (minX == 'none' || unit.x < minX) minX = unit.x
+                            if (minY == 'none' || unit.y < minY) minY = unit.y
+                            if (maxX == 'none' || unit.x > maxX) maxX = unit.x
+                            if (maxY == 'none' || unit.y > maxY) maxY = unit.y
+                        }
+                        str += ']'
+
+                        if (polyIncludeDimensions.checked && minX != 'none' && minY != 'none' && maxX != 'none' && maxY != 'none')
+                            str += ',x:'+(minX+oftX)+',y:'+(minY+oftY)+',w:'+(maxX-minX)+',h:'+(maxY-minY)
+                    }
+                    else if (item.type == 'rect') {
+                        str += 'x:'+(item.x+oftX)+',y:'+(item.y+oftY)+',w:'+item.w+',h:'+item.h
+                    }
+                    else if (item.type == 'point') {
+                        str += 'x:'+(item.x+oftX)+',y:'+(item.y+oftY)+(pointIncludeDimensions.checked?',w:0,h:0':'')
+                    }
+
+                    str += '}'+(i<arr.length-1?',':'')
+                }
+                str += ']'
+
+                output.value = str
+            }
+
+            output.ondblclick = () => output.select()
+            includeHue.onchange = () => generateCode()
+            includeNames.onchange = () => generateCode()
+            polyIncludeDimensions.onchange = () => generateCode()
+            pointIncludeDimensions.onchange = () => generateCode()
+            topLeftAtZeroZero.onchange = () => generateCode()
+            enquote.onchange = () => generateCode()
+
+            newQuery.onclick = () => {
+                const hold = document.createElement('div')
+                const find = document.createElement('input')
+                const replace = document.createElement('input')
+                const del = document.createElement('button')
+                const instances = document.createElement('div')
+
+                find.placeholder = 'Find'
+                find.oninput = () => {
+                    const val = find.value.trim()
+                    let count = 0
+                    for (let i = 0; i < arr.length; i ++) {
+                        const item = arr[i]
+                        if (!item.data) continue
+                        if (val == item.data.trim())
+                            count ++
+                    }
+                    instances.textContent = count + ' result' + (count == 1 ? '' : 's')
+                    generateCode()
+                }
+
+                replace.placeholder = 'Replace'
+                replace.oninput = () => generateCode()
+
+                del.className = 'delete'
+                del.textContent = 'X'
+                del.onclick = () => {
+                    hold.classList.add('in-danger')
+                    newAlert('Really delete query?', () => {
+                        codeReplace.removeChild(hold)
+                        const idx = queries.indexOf(hold)
+                        if (idx < 0) return
+                        queries.splice(idx, 1)
+                        generateCode()
+                    }, () => hold.classList.remove('in-danger'))
+                }
+
+                hold._find = find
+                hold._replace = replace
+
+                hold.append(find, replace, del, instances)
+                codeReplace.appendChild(hold)
+                queries.push(hold)
+
+                generateCode()
+            }
+
+            const options = document.getElementsByClassName('option')
+            let usingPreset = 0
+            function makeOption(item) {
+                item.selectMe = () => {
+                    for (let i = 0; i < options.length; i ++)
+                        options[i].classList.remove('selected')
+
+                    if (item.classList.contains('preset')) {
+                        const type = item.link.type
+                        if (type == 'poly') polyMode.classList.add('selected')
+                        else if (type == 'rect') rectMode.classList.add('selected')
+                        else if (type == 'point') pointMode.classList.add('selected')
+
+                        usingPreset = item
+                    }
+
+                    else usingPreset = 0
+
+                    item.classList.add('selected')
+                    hue.oninput()
+                }
+                item.addEventListener('click', () => item.selectMe())
+            }
+
+            for (let i = 0; i < options.length; i ++) {
+                const item = options[i]
+                makeOption(item)
+            }
+
+            function hslToHex(h, s, l) {
+                l /= 100
+                const a = s * Math.min(l, 1 - l) / 100
+                const f = n => {
+                    const k = (n + h / 30) % 12
+                    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
+                    return Math.round(255 * color).toString(16).padStart(2, '0')
+                }
+                return `#${f(0)}${f(8)}${f(4)}`
+            }
+
+            grid.value = 0
+            length.value = 30
+            smooth.value = 0
+            fill.checked = false
+            loop.checked = true
+            snapToGrid.checked = false
+            direction.checked = false
+            editData.value = ''
+
+            grid.oninput = () => gridVal.textContent = Number(grid.value)
+            length.oninput = () => lengthVal.textContent = Number(length.value)
+            smooth.oninput = () => smoothVal.textContent = Number(smooth.value)
+            grid.oninput()
+            length.oninput()
+            smooth.oninput()
+
+            shapeW.oninput = () => {
+                if (!selectedShape || selectedShape.type != 'rect') return
+                selectedShape.w = shapeW.value
+            }
+
+            shapeH.oninput = () => {
+                if (!selectedShape || selectedShape.type != 'rect') return
+                selectedShape.h = shapeH.value
+            }
+
+            let dt = 0
+            let time = 0
+
+            let box = 0
+
+            let mouseDown = false
+            let mouseClick = false
+            let mouseUp = false
+            let mouseRelease = false
+            let mouseRightClick = false
+
+            let mouseX = 0
+            let mouseY = 0
+            let mouseVelX = 0
+            let mouseVelY = 0
+
+            let camX = 0
+            let camY = 0
+            let camVelX = 0
+            let camVelY = 0
+
+            let scaleVel = 0
+            let scale = 1
+
+            let tailX = 0
+            let tailY = 0
+
+            let selectBoxItems = []
+            let selectBoxDrag = false
+            let selectBoxDisplay = false
+            let selectBoxCreation = false
+            let selectBoxX = 0
+            let selectBoxY = 0
+            let selectBoxW = 0
+            let selectBoxH = 0
+            let selectBoxOriginX = 0
+            let selectBoxOriginY = 0
+            let selectBoxOftX = 0
+            let selectBoxOftY = 0
+
+            let makingRect = false
+
+            const gridMinSize = 10
+
+            let editMode = false
+            let movingPoint = false
+            function toggleEdit(mode) {
+                if (!mode) {
+                    editMode = false
+                    return
+                }
+
+                editMode = true
+
+                if (arrow.classList.contains('selected'))
+                    deselectAllPoints()
+            }
+            editShape.onmousedown = () => toggleEdit(!editMode)
+
+            /*
+            arr = [
+                object {type, x, y, w: undefined, h: undefined, content: [
+                    {x: Number, y: Number}
+                    ...
+                ]}
+            ]
+            */
+
+            let arr = []
+            let presets = []
+
+            let selectedShape = 0
+            let selectedPoint = 0
+
+            const hue = document.getElementById('hue')
+            hue.oninput = () => {
+                if (!selectedShape) return
+                const color = hslToHex(Number(hue.value), 50, 30)
+                stats.style.background = color
+                selectedShape.hue = Number(hue.value)
+            }
+            hue.oninput()
+
+            const changeShapeName = value => {
+                selectedShape.name = value
+                if (selectedShape.nameElement)
+                    selectedShape.nameElement.textContent = value
+            }
+            shapeName.oninput = () => {
+                changeShapeName(shapeName.value)
+            }
+
+            const presetHold = document.getElementById('presets-hold')
+
+            function updatePresetList() {
+                presetHold.innerHTML = ''
+                for (let i = 0; i < presets.length; i ++) {
+                    const item = presets[i]
+                    const hold = document.createElement('div')
+                    const button = document.createElement('button')
+                    const del = document.createElement('button')
+
+                    hold.className = 'option-hold'
+
+                    button.className = 'option preset'
+                    button.title = '('+selectedShape.type+')'
+                    button.textContent = item.name
+                    button.link = item
+                    makeOption(button)
+
+                    if (usingPreset && usingPreset.link.name == button.textContent)
+                        button.selectMe()
+
+                    del.className = 'delete'
+                    del.textContent = 'X'
+                    del.link = item
+                    del.onclick = () => {
+                        newAlert('Really delete this preset?', () => {
+                            const idx = presets.indexOf(del.link)
+                            if (idx < 0) return
+                            presets.splice(idx, 1)
+                            updatePresetList()
+                        }, () => {})
+                    }
+
+                    button.ondblclick = () => {
+                        const go = prompt('Rename Preset', button.textContent)
+                        if (!go) return
+                        const val = go.trim().toLowerCase()
+                        if (!val) return
+                        item.name = val
+                        button.textContent = val
+                    }
+
+                    item.link = button
+                    hold.append(button, del)
+                    presetHold.appendChild(hold)
+                }
+            }
+
+            addPreset.onclick = () => {
+                if (!selectedShape) return
+
+                const val = presetName.value.trim().toLowerCase()
+                if (!val) {
+                    newAlert('Please set a preset name!', () => {}, () => {})
+                    return
+                }
+
+                for (let i = 0; i < presets.length; i ++) {
+                    if (presets[i].name == val) {
+                        newAlert('This preset name already exists!', () => {}, () => {})
+                        return
+                    }
+                }
+
+                presetName.value = val
+
+                presets.push({
+                    name: val,
+                    hue: selectedShape.hue,
+                    data: selectedShape.data,
+                    type: selectedShape.type
+                })
+
+                updatePresetList()
+            }
+
+            function selectShape(item, i, e, justUpdatingTheSameShape = false) {
+                if (!justUpdatingTheSameShape) {
+                    toggleEdit(false)
+                    selectedPoint = 0
+                }
+                reverseShape.textContent = 'Reverse'
+                presetName.value = ''
+
+                const last = document.getElementsByClassName('select')
+                for (let i = 0; i < last.length; i ++) last[i].classList.remove('select')
+                selectedShape = item
+                e.classList.add('select')
+                shapeName.value = (item.name || item.type)
+                shapeButtons.classList.remove('hide')
+                editData.value = (item.data || '')
+
+                if (selectedShape.hue != undefined)
+                    hue.value = selectedShape.hue
+                else hue.value = 130
+                hue.oninput()
+
+                next.textContent = item.type + ' (' + i + ')'
+
+                if (item.type == 'poly') {
+                    deleteSeg.classList.remove('hide')
+                    continueFromHere.classList.remove('hide')
+                    editShape.classList.remove('hide')
+                    reverseShape.classList.remove('hide')
+                }
+                else if (item.type == 'rect') {
+                    deleteSeg.classList.add('hide')
+                    continueFromHere.classList.add('hide')
+                    editShape.classList.add('hide')
+                    reverseShape.classList.add('hide')
+
+                    setDimensions()
+                }
+                else if (item.type == 'point') {
+                    deleteSeg.classList.add('hide')
+                    continueFromHere.classList.add('hide')
+                    editShape.classList.add('hide')
+                    reverseShape.classList.add('hide')
+                }
+            }
+
+            function deselect() {
+                const last = document.getElementsByClassName('select')
+                for (let i = 0; i < last.length; i ++) last[i].classList.remove('select')
+                for (let i = 0; i < arr.length; i ++) arr[i].isSelected = false
+                selectBoxW = 0
+                selectBoxH = 0
+                shapeName.value = 'No shape selected'
+                shapeButtons.classList.add('hide')
+                editMode = false
+            }
+
+            function deselectAllPoints() {
+                for (let i = 0; i < arr.length; i ++) {
+                    const shape = arr[i]
+                    shape.isSelected = false
+                    if (shape.type != 'poly') continue
+                    for (let j = 0; j < shape.content.length; j ++) {
+                        const item = shape.content[j]
+                        item.isSelected = false
+                    }
+                }
+                selectBoxW = 0
+                selectBoxH = 0
+            }
+
+            function updateShapeList(select = true) {
+                allShapes.innerHTML = ''
+                shapeButtons.classList.remove('hide')
+
+                for (let i = 0; i < arr.length; i ++) {
+                    const item = arr[i]
+                    const hold = document.createElement('span')
+                    hold.classList.add('shape')
+
+                    const small = document.createElement('span')
+                    small.className = 'small'
+                    small.textContent = i
+                    hold.appendChild(small)
+
+                    const text = document.createElement('span')
+                    text.textContent = (item.name||item.type)
+                    hold.appendChild(text)
+
+                    item.nameElement = text
+
+                    hold.onmouseover = () => item.hover = true
+                    hold.onmouseleave = () => item.hover = false
+                    hold.onmousedown = (sameShape = false) => selectShape(item, i, hold, sameShape)
+                    item.selectMe = (sameShape = false) => hold.onmousedown(sameShape)
+                    allShapes.appendChild(hold)
+                    if (select) selectShape(item, i, hold)
+                }
+            }
+
+            let deleteLastPath = false
+            function deleteLastPathFunc(alertMe = true) {
+                toggleEdit(false)
+                deleteLastPath = true
+
+                const calc = () => {
+                    if (!selectedShape) return
+                    // Remove, but make sure there's always something in the array (Removed)
+                    arr.splice(arr.indexOf(selectedShape), 1)
+                    updateShapeList()
+                    deselect()
+                }
+
+                if (!alertMe) {
+                    calc()
+                    deleteLastPath = false
+                    return
+                }
+
+                newAlert('Really delete?', () => calc(), () => deleteLastPath = false)
+            }
+
+            editData.oninput = () => {
+                const val = editData.value
+                editData.value = val
+                selectedShape.data = val.trim()
+            }
+
+            deletePath.onclick = () => deleteLastPathFunc()
+
+            moveUp.onclick = () => {
+                if (!selectedShape) return
+                const idx = arr.indexOf(selectedShape)
+                if (idx > 0) {
+                    arr.splice(idx, 1)
+                    arr.splice(idx - 1, 0, selectedShape)
+                }
+
+                updateShapeList(false)
+                selectedShape.selectMe()
+            }
+
+            onkeydown = e => {
+                if (e.key == 'Delete') {
+                    if (editMode) {
+                        if (!selectBoxDisplay)
+                            deleteSeg.onmousedown()
+                        else if (selectedShape) {
+                            const idx = arr.indexOf(selectedShape)
+                            if (idx > -1) {
+                                const item = arr[idx].content
+
+                                for (let j = 0; j < selectBoxItems.length; j ++) {
+                                    const shape = selectBoxItems[j]
+                                    if (shape.type != 'poly') continue
+
+                                    for (let i = 0; i < shape.content.length; i ++) {
+                                        const item = shape.content[i]
+
+                                        // Just move individual points if in edit mode
+                                        if (editMode && !item.isSelected) continue
+
+                                        shape.content.splice(i, 1)
+                                    }
+                                }
+
+                                // Remove path if empty
+                                if (arr[idx].content.length <= 1) {
+                                    arr.splice(idx, 1)
+                                    updateShapeList()
+                                    deselect()
+                                }
+                            }
+                        }
+                    }
+                    else if (selectBoxDisplay) {
+                        newAlert('Really delete these ' + selectBoxItems.length + ' shapes?',
+                            () => {
+                                for (let j = 0; j < selectBoxItems.length; j ++) {
+                                    const shape = selectBoxItems[j]
+                                    const idx = arr.indexOf(shape)
+                                    if (idx < 0) continue
+                                    arr.splice(idx, 1)
+                                }
+                                updateShapeList()
+                                deselect()
+                            }, () => {})
+                    }
+                }
+            }
+
+            deleteSeg.onmousedown = () => {
+                if (!selectedShape) return
+                const idx = arr.indexOf(selectedShape)
+                if (idx < 0) return
+
+                const item = arr[idx].content
+                const point = item.indexOf(selectedPoint)
+                if (selectedPoint && point > -1) {
+                    item.splice(point, 1)
+                    selectedPoint = item[point - 1]
+                }
+                else item.pop()
+
+                // Remove path if empty
+                if (arr[idx].content.length <= 1) {
+                    arr.splice(idx, 1)
+                    updateShapeList()
+                    deselect()
+                }
+            }
+
+            let continuingFromHere = false
+            continueFromHere.onclick = () => {
+                toggleEdit(false)
+                pen.selectMe()
+                selectedShape.selectMe(true)
+                continuingFromHere = true
+            }
+
+            reverseShape.onclick = () => {
+                if (!selectedShape) return
+                if (reverseShape.textContent == 'Reverse')
+                    reverseShape.textContent = 'Reverse back'
+                else reverseShape.textContent = 'Reverse'
+                selectedShape.content.reverse()
+            }
+
+            function setDimensions() {
+                if (selectedShape.type == 'rect') {
+                    shapeW.value = selectedShape.w
+                    shapeH.value = selectedShape.h
+                }
+                else {
+                    shapeW.value = ''
+                    shapeH.value = ''
+                }
+            }
+
+            function mouseMove(e, moving = true) {
+                const old = {x: mouseX, y: mouseY}
+
+                mouseX = e.clientX * devicePixelRatio
+                mouseY = e.clientY * devicePixelRatio
+
+                if (!mouseDown) {
+                    tailX = mouseX
+                    tailY = mouseY
+                }
+
+                if (moving) {
+                    if (mouseRightClick) {
+                        camVelX = mouseVelX / (box * scale)
+                        camVelY = mouseVelY / (box * scale)
+                    }
+
+                    mouseVelX = mouseX - old.x
+                    mouseVelY = mouseY - old.y
+
+                    // Make select box
+                    if (selectBoxCreation && !movingPoint) {
+                        selectBoxW = calcGrid(alterX(mouseX) - selectBoxX)
+                        selectBoxH = calcGrid(alterY(mouseY) - selectBoxY)
+                    }
+
+                    // Move selected items
+                    if (selectBoxDrag) {
+                        const vel_x = mouseVelX / (box * scale)
+                        const vel_y = mouseVelY / (box * scale)
+
+                        selectBoxOftX += vel_x
+                        selectBoxOftY += vel_y
+
+                        let lastX = selectBoxX
+                        let lastY = selectBoxY
+
+                        selectBoxX = calcGrid(selectBoxOriginX + selectBoxOftX)
+                        selectBoxY = calcGrid(selectBoxOriginY + selectBoxOftY)
+
+                        const dx = selectBoxX - lastX
+                        const dy = selectBoxY - lastY
+
+                        // Move whole shapes
+                        for (let j = 0; j < selectBoxItems.length; j ++) {
+                            const shape = selectBoxItems[j]
+                            if (shape.type == 'poly') {
+                                for (let i = 0; i < shape.content.length; i ++) {
+                                    const item = shape.content[i]
+
+                                    // Just move individual points if in edit mode
+                                    if (editMode && !item.isSelected) continue
+
+                                    item.x += dx
+                                    item.y += dy
+                                }
+                            }
+                            else if (shape.type == 'rect' || shape.type == 'point') {
+                                shape.x += dx
+                                shape.y += dy
+                            }
+                        }
+                    }
+                }
+
+                setDimensions()
+            }
+
+            function resize() {
+                cvs.width = innerWidth * devicePixelRatio
+                cvs.height = innerHeight * devicePixelRatio
+                box = (cvs.width + cvs.height) / 1600
+            }
+
+            const calcGrid = x => {
+                if (!snapToGrid.checked) return x
+                const gridAmt = Number(grid.value) + gridMinSize
+                return Math.round(x / gridAmt) * gridAmt
+            }
+
+            const alterX = x => {
+                return (x - cvs.width / 2) / (box * scale) - camX
+            }
+            const alterY = y => {
+                return (y - cvs.height / 2) / (box * scale) - camY
+            }
+
+            const drawX = x => {
+                return (x + camX) * (box * scale) + cvs.width / 2
+            }
+            const drawY = y => {
+                return (y + camY) * (box * scale) + cvs.height / 2
+            }
+
+            let editingShape = false
+            function selectBoxScan(clearOld) {
+                let success = false
+                if (clearOld) {
+                    selectBoxItems = []
+                    editingShape = false
+                }
+
+                for (let i = 0; i < arr.length; i ++) {
+                    const shape = arr[i]
+                    if (clearOld) shape.isSelected = false
+                    if (editMode && shape !== selectedShape) continue
+
+                    if (shape.type == 'poly') {
+                        for (let j = 0; j < shape.content.length; j ++) {
+                            const item = shape.content[j]
+
+                            if (item.x > selectBoxX + Math.min(selectBoxW, 0) && item.x < selectBoxX + Math.max(selectBoxW, 0) &&
+                                item.y > selectBoxY + Math.min(selectBoxH, 0) && item.y < selectBoxY + Math.max(selectBoxH, 0)) {
+
+                                success = true
+
+                                // Select individual points
+                                if (editMode) {
+                                    item.isSelected = true
+                                    if (!editingShape)
+                                        selectBoxItems.push(shape)
+                                    editingShape = true
+                                }
+
+                                // Select whole shapes
+                                else {
+                                    shape.isSelected = true
+                                    if (!selectBoxItems.length) shape.selectMe()
+                                    if (!selectBoxItems.some(e => e == shape))
+                                        selectBoxItems.push(shape)
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+                    else if (shape.type == 'rect') {
+                        const x = shape.x
+                        const y = shape.y
+                        const w = shape.w
+                        const h = shape.h
+
+                        if ((
+                                selectBoxX + Math.max(selectBoxW, 0) > x && selectBoxX + Math.min(selectBoxW, 0) < x + w &&
+                                selectBoxY + Math.max(selectBoxH, 0) > y && selectBoxY + Math.min(selectBoxH, 0) < y + h
+                            ) && (
+                                (selectBoxX + Math.max(selectBoxW, 0) > x && selectBoxX + Math.min(selectBoxW, 0) < x) ||
+                                (selectBoxX + Math.min(selectBoxW, 0) < x + w && selectBoxX + Math.max(selectBoxW, 0) > x + w) ||
+                                (selectBoxY + Math.max(selectBoxH, 0) > y && selectBoxY + Math.min(selectBoxH, 0) < y) ||
+                                (selectBoxY + Math.min(selectBoxH, 0) < y + h && selectBoxY + Math.max(selectBoxH, 0) > y + h)
+                            )) {
+                            success = true
+                            shape.isSelected = true
+                            if (!selectBoxItems.length) shape.selectMe()
+                            if (!selectBoxItems.some(e => e == shape))
+                                selectBoxItems.push(shape)
+                        }
+                    }
+
+                    else if (shape.type == 'point') {
+                        const x = shape.x
+                        const y = shape.y
+
+                        if (selectBoxX + Math.max(selectBoxW, 0) > x &&
+                            selectBoxX + Math.min(selectBoxW, 0) < x &&
+                            selectBoxY + Math.max(selectBoxH, 0) > y &&
+                            selectBoxY + Math.min(selectBoxH, 0) < y) {
+                            success = true
+                            shape.isSelected = true
+                            if (!selectBoxItems.length) shape.selectMe()
+                            if (!selectBoxItems.some(e => e == shape))
+                                selectBoxItems.push(shape)
+                        }
+                    }
+                }
+
+                return success
+            }
+
+            addEventListener('contextmenu', e => e.preventDefault())
+            cvs.addEventListener('wheel', e => {
+                scaleVel = -e.deltaY / 400
+                if (e.ctrlKey) e.preventDefault()
+            }, {passive: false})
+
+            cvs.addEventListener('mousedown', e => {
+                mouseMove(e, false)
+
+                if (e.buttons > 1) {
+                    mouseRightClick = true
+
+                    if (selectBoxDisplay && !editMode) {
+                        const x = alterX(mouseX)
+                        const y = alterY(mouseY)
+
+                        // Clicking the box
+                        if (x > selectBoxX + Math.min(selectBoxW, 0) && x < selectBoxX + Math.max(selectBoxW, 0) &&
+                            y > selectBoxY + Math.min(selectBoxH, 0) && y < selectBoxY + Math.max(selectBoxH, 0)) {
+                            mouseRightClick = false
+
+                            newAlert('Duplicate selection?', () => {
+                                const amt = 10
+                                for (let j = 0; j < selectBoxItems.length; j ++) {
+                                    const shape = selectBoxItems[j]
+                                    const obj = {type: shape.type, data: shape.data, hue: shape.hue}
+
+                                    if (shape.type == 'poly') {
+                                        obj.content = []
+                                        for (let i = 0; i < shape.content.length; i ++) {
+                                            const item = shape.content[i]
+                                            obj.content.push({x: item.x, y: item.y})
+                                            item.x += amt
+                                            item.y += amt
+                                        }
+                                    }
+                                    else if (shape.type == 'rect') {
+                                        obj.w = shape.w
+                                        obj.h = shape.h
+                                        obj.x = shape.x
+                                        obj.y = shape.y
+                                        shape.x += amt
+                                        shape.y += amt
+                                    }
+
+                                    else if (shape.type == 'point') {
+                                        obj.x = shape.x
+                                        obj.y = shape.y
+                                        shape.x += amt
+                                        shape.y += amt
+                                    }
+
+                                    arr.push(obj)
+                                }
+
+                                updateShapeList()
+                            }, () => {})
+                        }
+                    }
+
+                    return
+                }
+
+                panel.classList.add('hidden')
+
+                mouseUp = false
+                mouseClick = true
+                mouseDown = true
+
+                if (alertBox.open) return
+
+                if (pen.classList.contains('selected')) {
+                    // Make new shape
+                    if (!editMode) {
+                        let x = alterX(mouseX)
+                        let y = alterY(mouseY)
+                        if (snapToGrid.checked) {
+                            x = calcGrid(x)
+                            y = calcGrid(y)
+                        }
+
+                        if (polyMode.classList.contains('selected')) {
+                            if (!continuingFromHere) {
+                                const obj = {type: 'poly', content: [{x, y}]}
+                                if (usingPreset) {
+                                    obj.hue = usingPreset.link.hue
+                                    obj.data = usingPreset.link.data
+                                }
+
+                                const idx = (selectedShape ? arr.indexOf(selectedShape) : -1)
+                                const addOne = Math.min(idx + 1, arr.length)
+                                if (idx > -1)
+                                    arr.splice(addOne, 0, obj)
+                                else arr.push(obj)
+                                updateShapeList()
+                                obj.selectMe()
+
+                                if (usingPreset && usingPreset.link.name) {
+                                    changeShapeName(usingPreset.link.name)
+                                    updateShapeList()
+                                }
+                                obj.selectMe()
+                            }
+                            continuingFromHere = false
+                        }
+                        else if (rectMode.classList.contains('selected')) {
+                            const obj = {type: 'rect', x, y, w: 0, h: 0, original: {x, y}, oft: {x, y}}
+                            if (usingPreset) {
+                                obj.hue = usingPreset.link.hue
+                                obj.data = usingPreset.link.data
+                            }
+                            makingRect = true
+
+                            const idx = (selectedShape ? arr.indexOf(selectedShape) : -1)
+                            const addOne = Math.min(idx + 1, arr.length)
+                            if (idx > -1)
+                                arr.splice(addOne, 0, obj)
+                            else arr.push(obj)
+
+                            updateShapeList()
+                            obj.selectMe()
+
+                            if (usingPreset && usingPreset.link.name)
+                                changeShapeName(usingPreset.link.name)
+
+                            updateShapeList()
+                            obj.selectMe()
+                        }
+                        else if (pointMode.classList.contains('selected')) {
+                            const obj = {type: 'point', x, y}
+                            if (usingPreset) {
+                                obj.hue = usingPreset.link.hue
+                                obj.data = usingPreset.link.data
+                            }
+
+                            const idx = (selectedShape ? arr.indexOf(selectedShape) : -1)
+                            const addOne = Math.min(idx + 1, arr.length)
+                            if (idx > -1)
+                                arr.splice(addOne, 0, obj)
+                            else arr.push(obj)
+
+                            updateShapeList()
+                            obj.selectMe()
+
+                            if (usingPreset && usingPreset.link.name)
+                                changeShapeName(usingPreset.link.name)
+
+                            updateShapeList()
+                            obj.selectMe()
+                        }
+                    }
+                }
+                else if (arrow.classList.contains('selected')) {
+                    const x = calcGrid(alterX(mouseX))
+                    const y = calcGrid(alterY(mouseY))
+
+                    // Clicking the box
+                    if (x > selectBoxX + Math.min(selectBoxW, 0) && x < selectBoxX + Math.max(selectBoxW, 0) &&
+                        y > selectBoxY + Math.min(selectBoxH, 0) && y < selectBoxY + Math.max(selectBoxH, 0))
+                        selectBoxDrag = true
+
+                    // Creating a new box
+                    else {
+                        selectBoxDisplay = false
+                        selectBoxCreation = true
+                        selectBoxX = x
+                        selectBoxY = y
+                        selectBoxOriginX = x
+                        selectBoxOriginY = y
+                        selectBoxOftX = 0
+                        selectBoxOftY = 0
+                        selectBoxW = 0
+                        selectBoxH = 0
+
+                        if (editMode && !e.shiftKey)
+                            deselectAllPoints()
+                    }
+                }
+            })
+
+            function mouseUpFunc(e) {
+                panel.classList.remove('hidden')
+
+                localStorage.setItem(KEY, JSON.stringify(generateFile()))
+
+                if (selectedShape && selectedShape.type == 'rect' && !selectedShape.w && !selectedShape.h){
+                    deleteLastPathFunc(false)
+                }
+
+                // Finished creating a select box. Either cancel or keep
+                if (selectBoxCreation) {
+                    const success = selectBoxScan(!e.shiftKey)
+                    selectBoxCreation = false
+                    if (success) selectBoxDisplay = true
+                    else {
+                        selectBoxW = 0
+                        selectBoxH = 0
+                    }
+                }
+
+                selectBoxDrag = false
+
+                mouseDown = false
+                mouseRightClick = false
+                mouseRelease = true
+                mouseUp = true
+                movingPoint = false
+            }
+            cvs.addEventListener('mouseup', e => mouseUpFunc(e))
+
+            addEventListener('mousemove', e => mouseMove(e))
+            addEventListener('resize', () => resize())
+            resize()
+
+            const alertBox = {open: false, func: () => {}, anyway: () => {}}
+            function newAlert(message, func, anyway) {
+                alertBox.open = true
+                alertMessage.textContent = message
+                alertBox.func = func
+                alertBox.anyway = anyway
+            }
+
+            function alertConfirm(ok) {
+                if (ok) alertBox.func()
+                alertBox.anyway()
+                alertBox.open = false
+                alertWindow.classList.remove('open')
+                mouseDown = false
+            }
+
+            function easeInExpo(x) {
+                return x == 0 ? 0 : Math.pow(2, 10 * x - 10)
+            }
+
+            onload = () => {
+                const changes = localStorage.getItem(KEY)
+                if (changes) uploadFile(JSON.parse(changes), true)
+            }
+
+            function update(oldPerf) {
+                // Control time for devices with a high refresh rate
+                dt = Math.min(1, (performance.now() - oldPerf) / 16)
+                time += dt
+
+                document.body.style.cursor = 'default'
+
+                const gridAmt = Number(grid.value) + gridMinSize
+
+                const smoothAmt = easeInExpo(1 - Number(smooth.value) / 150)
+                const lengthAmt = Number(length.value)
+                const snapRad = lengthAmt / 3
+
+                camVelX *= Math.pow(.9, dt)
+                camVelY *= Math.pow(.9, dt)
+
+                camX += camVelX * dt
+                camY += camVelY * dt
+
+                scaleVel *= Math.pow(.9, dt)
+                scale += scale * scaleVel * dt
+
+                tailX += (mouseX - tailX) * smoothAmt * dt
+                tailY += (mouseY - tailY) * smoothAmt * dt
+
+                // Background
+                ctx.fillStyle = '#012'
+                ctx.fillRect(0, 0, cvs.width, cvs.height)
+
+                const zoom = box * scale
+
+                // Draw grid
+                const a = snapToGrid.checked ? scale*gridAmt*.05 : Math.min(.1, scale*gridAmt*.005)
+                ctx.fillStyle = 'rgb(255,255,255,'+a+')'
+                const hw = Math.min(100, cvs.width / zoom / 2 / gridAmt)
+                const hh = Math.min(100, cvs.height / zoom / 2 / gridAmt)
+                for (let x = Math.floor(-hw - camX / gridAmt); x < Math.ceil(hw - camX / gridAmt); x ++)
+                    ctx.fillRect(drawX(x * gridAmt), 0, 1, cvs.height)
+                for (let y = Math.floor(-hh - camY / gridAmt); y < Math.ceil(hh - camY / gridAmt); y ++)
+                    ctx.fillRect(0, drawY(y * gridAmt), cvs.width, 1)
+
+                const polyIdx = arr.indexOf(selectedShape)
+
+                // Create shape with pen
+                if (polyIdx > -1 && pen.classList.contains('selected') &&
+                    !editMode &&
+                    !mouseRightClick &&
+                    !alertBox.open) {
+
+                    if (selectedShape.type == 'poly' &&
+                        (mouseDown || continuingFromHere || mouseRelease)) {
+
+                        const lines = arr[polyIdx].content
+                        const pointIdx = lines.indexOf(selectedPoint)
+
+                        const idx = (pointIdx > -1 ? pointIdx : lines.length - 1)
+                        const currentPoint = lines[idx]
+
+                        let x = alterX(tailX)
+                        let y = alterY(tailY)
+                        let snapToStart = false
+
+                        if (snapToGrid.checked) {
+                            x = calcGrid(x)
+                            y = calcGrid(y)
+                        }
+
+                        const dx = x - currentPoint.x
+                        const dy = y - currentPoint.y
+                        const d = Math.hypot(dx, dy)
+
+                        if (lines.length > 2) {
+                            const nx = lines[0].x
+                            const ny = lines[0].y
+
+                            const toStartMouseDx = nx - x
+                            const toStartMouseDy = ny - y
+                            const toStartMouseD = Math.hypot(toStartMouseDx, toStartMouseDy)
+
+                            if (toStartMouseD < snapRad && loop.checked) {
+                                ctx.fillStyle = '#f00'
+                                ctx.fillRect(drawX(nx), drawY(ny), 10, 10)
+
+                                ctx.beginPath()
+                                ctx.lineWidth = 2
+                                ctx.strokeStyle = '#0dd'
+                                ctx.moveTo(drawX(nx), drawY(ny))
+                                ctx.lineTo(drawX(currentPoint.x), drawY(currentPoint.y))
+                                ctx.stroke()
+
+                                x = lines[0].x
+                                y = lines[0].y
+                                snapToStart = true
+                            }
+                        }
+
+                        ctx.strokeStyle = '#0f0'
+                        ctx.lineWidth = 1
+                        ctx.beginPath()
+                        ctx.moveTo(tailX, tailY)
+                        ctx.lineTo(drawX(currentPoint.x), drawY(currentPoint.y))
+                        ctx.stroke()
+
+                        ctx.strokeStyle = '#0f9'
+                        ctx.lineWidth = 1
+                        ctx.beginPath()
+                        ctx.moveTo(tailX, tailY)
+                        ctx.lineTo(mouseX, mouseY)
+                        ctx.stroke()
+
+                        if (continuingFromHere) {
+                            const next = lines[Math.min(idx + 1, lines.length - 1)]
+                            const nextX = drawX(next.x)
+                            const nextY = drawY(next.y)
+                            ctx.strokeStyle = '#0f0'
+                            ctx.beginPath()
+                            ctx.moveTo(mouseX, mouseY)
+                            ctx.lineTo(nextX, nextY)
+                            ctx.stroke()
+                        }
+
+                        const longEnough = d > lengthAmt && !mouseRelease && !snapToStart
+                        const snappingToStart = snapToStart && mouseRelease
+
+                        // Releasing when line is too short
+                        if (mouseRelease && !snappingToStart && lines.length < 2)
+                            deleteLastPathFunc(false)
+
+                        if (!continuingFromHere) {
+                            if (longEnough || snappingToStart) {
+                                if (selectedPoint) {
+                                    const point = {x,y}
+                                    lines.splice(pointIdx + 1, 0, point)
+                                    selectedPoint = point
+                                }
+                                else lines.push({x,y})
+                            }
+                        }
+                    }
+
+                    if (selectedShape.type == 'rect' && mouseDown) {
+                        const rect = arr[polyIdx]
+                        const w = alterX(mouseX) - rect.original.x
+                        const h = alterY(mouseY) - rect.original.y
+
+                        rect.oft.x = Math.min(0, w)
+                        rect.oft.y = Math.min(0, h)
+                        rect.w = calcGrid(Math.abs(w))
+                        rect.h = calcGrid(Math.abs(h))
+
+                        rect.x = calcGrid(rect.oft.x + rect.original.x)
+                        rect.y = calcGrid(rect.oft.y + rect.original.y)
+                    }
+                }
+
+                // Edit shape
+                if (editMode && polyIdx > -1) {
+                    if (selectedShape.type == 'poly') {
+                        const lines = arr[polyIdx].content
+
+                        for (let i = 0; i < lines.length; i ++) {
+                            const item = lines[i]
+                            const x = drawX(item.x)
+                            const y = drawY(item.y)
+                            const dx = mouseX - x
+                            const dy = mouseY - y
+                            const d = Math.hypot(dx, dy)
+
+                            const validCreation = selectBoxCreation && selectBoxW && selectBoxH
+
+                            if (d < 10 && !movingPoint && !validCreation && !selectBoxDrag) {
+                                document.body.style.cursor = 'grab'
+                                if (mouseDown) {
+                                    movingPoint = true
+                                    selectedPoint = item
+                                    selectedPoint.oft = {x: dx, y: dy}
+                                }
+                            }
+                        }
+                    }
+                }
+                if (movingPoint && selectedPoint && selectedPoint.oft) {
+                    document.body.style.cursor = 'grabbing'
+
+                    selectedPoint.x = calcGrid(alterX(mouseX - selectedPoint.oft.x))
+                    selectedPoint.y = calcGrid(alterY(mouseY - selectedPoint.oft.y))
+                }
+
+                // Draw
+                for (let j = 0; j < arr.length; j ++) {
+                    const shape = arr[j]
+                    const lines = shape.content
+                    const hover = shape.hover
+                    const selected = selectedShape === shape
+                    const s = (fill.checked?'dd':hover?'22':'11')
+
+                    const change = (hover ? 50 : selected ? 20: 0)
+                    ctx.fillStyle = hslToHex(shape.hue, 50 + change, 50) + s
+                    ctx.strokeStyle = hslToHex(shape.hue, 50 + change, 70)
+                    if (shape.isSelected) {
+                        ctx.fillStyle = '#1589'
+                        ctx.strokeStyle = '#09f'
+                    }
+
+                    ctx.lineWidth = 5
+                    ctx.lineJoin = 'round'
+
+                    // Draw polygons
+                    if (shape.type == 'poly') {
+                        ctx.beginPath()
+                        for (let i = 0; i < lines.length; i ++) {
+                            const item = lines[i]
+
+                            const x = drawX(item.x)
+                            const y = drawY(item.y)
+                            const dx = mouseX - x
+                            const dy = mouseY - y
+                            const d = Math.hypot(dx, dy)
+
+                            ctx.lineTo(x, y)
+                        }
+                        if (fill.checked || hover || selected) ctx.fill()
+                        ctx.stroke()
+
+                        // Draw directional rects
+                        if (direction.checked && selected) {
+                            ctx.fillStyle = hslToHex(selectedShape.hue, 50, 50) + '55'
+                            for (let i = 0; i < lines.length; i ++) {
+                                const item = lines[i]
+                                const last = lines[Math.max(0,i-1)]
+                                const x = drawX(item.x)
+                                const y = drawY(item.y)
+                                const nx = drawX(last.x)
+                                const ny = drawY(last.y)
+                                const dx = nx - x
+                                const dy = ny - y
+                                const d = Math.hypot(dx, dy)
+                                const a = Math.atan2(dy, dx)
+
+                                ctx.save()
+                                ctx.translate(x, y)
+                                ctx.rotate(a)
+                                ctx.fillRect(0, 0, d, -d)
+                                ctx.restore()
+                            }
+                        }
+
+                        // Draw edit mode control points
+                        if (editMode && selected) {
+                            ctx.lineWidth = 1
+                            for (let i = 0; i < lines.length; i ++) {
+                                const item = lines[i]
+                                const point = (selectedPoint === item)
+                                const s = 10
+                                ctx.fillStyle = (item.isSelected ? '#00f' : '#000')
+                                ctx.strokeStyle = (point || item.isSelected ? '#f00' : '#0ff')
+
+                                ctx.fillRect(drawX(item.x) - s/2, drawY(item.y) - s/2, s, s)
+                                ctx.strokeRect(drawX(item.x) - s/2, drawY(item.y) - s/2, s, s)
+                            }
+
+                            ctx.font = (box*10) + 'px monospace, sans-serif'
+                            ctx.fillStyle = '#fff'
+                            ctx.textAlign = 'center'
+
+                            if (lines[0]) ctx.fillText('start',
+                                drawX(lines[0].x),
+                                drawY(lines[0].y) - 10)
+
+                            if (lines[lines.length - 1]) ctx.fillText('end',
+                                drawX(lines[lines.length - 1].x),
+                                drawY(lines[lines.length - 1].y) - 10)
+                        }
+                    }
+
+                    else if (shape.type == 'rect') {
+                        const x = drawX(shape.x)
+                        const y = drawY(shape.y)
+                        const w = shape.w * zoom
+                        const h = shape.h * zoom
+
+                        ctx.fillRect(x, y, w, h)
+                        ctx.strokeRect(x, y, w, h)
+                    }
+
+                    else if (shape.type == 'point') {
+                        const x = drawX(shape.x)
+                        const y = drawY(shape.y)
+
+                        ctx.beginPath()
+                        ctx.arc(x, y, 10, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.stroke()
+                    }
+                }
+
+                // Draw outlines to keep hidden shapes visible
+                if (fill.checked) {
+                    for (let j = 0; j < arr.length; j ++) {
+                        const shape = arr[j]
+                        ctx.strokeStyle = '#000'
+                        ctx.lineWidth = 1
+
+                        if (shape.type == 'poly') {
+                            const lines = shape.content
+
+                            ctx.beginPath()
+                            for (let i = 0; i < lines.length; i ++) {
+                                const item = lines[i]
+                                ctx.lineTo(drawX(item.x), drawY(item.y))
+                            }
+                            ctx.stroke()
+                        }
+
+                        else if (shape.type == 'rect') {
+                            ctx.strokeRect(drawX(shape.x), drawY(shape.y), shape.w * zoom, shape.h * zoom)
+                        }
+
+                        else if (shape.type == 'point') {
+                            ctx.beginPath()
+                            ctx.arc(
+                                drawX(selectedShape.x),
+                                drawY(selectedShape.y),
+                                10, 0, Math.PI * 2)
+                            ctx.stroke()
+                        }
+                    }
+                }
+
+                // Select box
+                if (arrow.classList.contains('selected')) {
+                    ctx.fillStyle = '#0ff2'
+                    ctx.strokeStyle = (selectBoxDisplay ? '#099' : '#0ff')
+                    ctx.lineWidth = 2
+                    ctx.fillRect(drawX(selectBoxX), drawY(selectBoxY), selectBoxW * zoom, selectBoxH * zoom)
+                    ctx.strokeRect(drawX(selectBoxX), drawY(selectBoxY), selectBoxW * zoom, selectBoxH * zoom)
+                }
+
+                ctx.fillStyle = '#900'
+                ctx.fillRect(mouseX - 3, mouseY - 3, 6, 6)
+
+                if (deleteLastPath && arr[polyIdx]) {
+                    ctx.fillStyle = '#9005'
+                    ctx.strokeStyle = '#f00'
+                    ctx.lineWidth = 5
+                    ctx.lineJoin = 'round'
+
+                    if (selectedShape.type == 'poly') {
+                        const lines = arr[polyIdx].content
+                        ctx.beginPath()
+                        for (let i = 0; i < lines.length; i ++) {
+                            const item = lines[i]
+                            ctx.lineTo(drawX(item.x), drawY(item.y))
+                        }
+                        ctx.fill()
+                        ctx.stroke()
+                    }
+                    else if (selectedShape.type == 'rect') {
+                        ctx.fillRect(
+                            drawX(selectedShape.x),
+                            drawY(selectedShape.y),
+                            selectedShape.w * zoom,
+                            selectedShape.h * zoom)
+                        ctx.strokeRect(
+                            drawX(selectedShape.x),
+                            drawY(selectedShape.y),
+                            selectedShape.w * zoom,
+                            selectedShape.h * zoom)
+                    }
+                    else if (selectedShape.type == 'point') {
+                        ctx.beginPath()
+                        ctx.arc(
+                            drawX(selectedShape.x),
+                            drawY(selectedShape.y),
+                            10, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.stroke()
+                    }
+                }
+
+
+                if (alertBox.open) {
+                    alertWindow.classList.add('open')
+                    ok.onclick = () => alertConfirm(true)
+                    no.onclick = () => alertConfirm(false)
+                }
+
+                // Reset
+                if (mouseClick) mouseClick = false
+                if (mouseRelease) mouseRelease = false
+                const old = performance.now()
+                requestAnimationFrame(() => update(old))
+            }
+
+            update(0)
+        </script>
+    </body>
+</html>

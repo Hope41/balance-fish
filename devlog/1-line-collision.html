@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = UTF-8>
+        <meta name = viewport content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'>
+        <meta name = description content = DESCRIPTION>
+        <meta name = author content = 'Joachim Ford'>
+
+        <meta property = og:title content = 'Joachim Ford'>
+        <meta property = og:description content = DESCRIPTION>
+        <meta property = og:image content = IMAGE>
+
+        <title>GameDev.js 2025</title>
+
+        <style>
+            html {
+                height: 100%;
+            }
+
+            body {
+                background: #fff;
+                margin: 0;
+                overflow: hidden;
+                user-select: none;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                touch-action: none;
+                position: relative;
+                height: 100%;
+            }
+
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+
+            div {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: 30px;
+                background-color: #fff9;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                color: #000;
+                max-width: 400px;
+                height: 100%;
+                overflow: scroll;
+                font-size: 19px;
+                font-family: monospace, sans-serif;
+            }
+
+            hr {
+                width: 100%;
+                border: 1px solid #0006;
+            }
+
+            * {box-sizing: border-box}
+        </style>
+    </head>
+    <body>
+        <canvas id = canvas></canvas>
+        <div>
+            <span><b>Move your mouse</b> to detect collision</span>
+            <span><b>Click</b> to drop</span>
+            <span><b>Drag</b> to throw</span>
+            <hr>
+            <span>
+                Every polygon in the game is made up of these lines.
+                Any object colliding with the semicircle bounding area will be...
+                what, "ejected" by the <b>normal</b>.
+            </span>
+            <hr>
+            <span>
+                Line collision: It's not everyone's cup of tea. I've taken a
+                couple of days before the competition just to get
+                familiar with these annoying collision algorithms again.
+            </span>
+            <span>
+                Since it's unlikely that I'll be using two-sided collision in the game,
+                I've made an example that collides with a <b>semicircle.</b>
+            </span>
+            <span>
+                This is a great method to keep in mind, mainly because it can largely
+                decrease the chance of <b>tunneling</b>.
+            </span>
+        </div>
+
+        <script>
+            'use strict'
+            const cvs = document.getElementById('canvas')
+            const ctx = cvs.getContext('2d')
+
+            let mouseClick = false
+            let dt = 0
+            let time = 0
+            let b = {x: 0, y: 0, fall: false, vx: 0, vy: 0}
+            let mouseX = 0
+            let mouseY = 0
+
+
+            // Unrelated controls
+            let size = 0
+            let mouseDown = false
+            let mouseSpeed = {x: 0, y: 0}
+            let carry = false
+            const pos = []
+
+            function mouseMove(e) {
+                const old = {x: mouseX, y: mouseY}
+
+                mouseX = e.clientX * devicePixelRatio
+                mouseY = e.clientY * devicePixelRatio
+
+                mouseSpeed = {x: mouseX - old.x, y: mouseY - old.y,}
+            }
+
+            function resize() {
+                const SCALE = .1
+
+                cvs.width = innerWidth * devicePixelRatio
+                cvs.height = innerHeight * devicePixelRatio + 1
+            }
+
+            addEventListener('mousedown', () => {
+                mouseSpeed = {x: 0, y: 0, speed: 0}
+                mouseDown = true
+            })
+            addEventListener('mouseup', () => {
+                mouseDown = false
+                mouseClick = true
+            })
+            addEventListener('mousemove', e => mouseMove(e))
+            addEventListener('resize', () => resize())
+            resize()
+
+            function pointIsInCircle(x, y, cx, cy, cr) {
+                const dx = x - cx
+                const dy = y - cy
+                const d = Math.hypot(dx, dy)
+                if (d < cr) return {dx, dy, d}
+                return false
+            }
+
+            function update(oldPerf) {
+                // Control time for devices with a high refresh rate
+                dt = Math.min(1, (performance.now() - oldPerf) / 16)
+                time += dt
+
+                // Background
+                ctx.fillStyle = '#59b'
+                ctx.fillRect(0, 0, cvs.width, cvs.height)
+
+                // -- UNRELATED --
+                ctx.strokeStyle = '#bdf'
+                for (let i = 0; i < pos.length; i ++) {
+                    const now = pos[i]
+                    const old = pos[Math.max(0, i - 1)]
+                    const k = i/(pos.length)
+                    ctx.lineWidth = Math.min(k * 20, 20)
+                    ctx.beginPath()
+                    ctx.moveTo(old.x, old.y)
+                    ctx.lineTo(now.x, now.y)
+                    ctx.stroke()
+                }
+                if (!carry) {
+                    const AMT = Math.min(Math.ceil(Math.hypot(b.vx, b.vy) / 3), 10)
+                    for (let i = 0; i < AMT; i ++) {
+                        const k = i / AMT
+                        pos.push({x: b.x - b.vx * k, y: b.y - b.vy * k})
+                    }
+                    if (pos.length > 100) pos.shift()
+                }
+
+                // VARS
+                const RADIUS_MOUSE = 100
+                const LINE_X_1 = 500
+                const LINE_Y_1 = 200
+                const LINE_X_2 = 900
+                const LINE_Y_2 = 500
+
+                // Get length of line
+                const AB_X = LINE_X_2 - LINE_X_1
+                const AB_Y = LINE_Y_2 - LINE_Y_1
+                const length = Math.hypot(AB_X, AB_Y)
+
+                const LINE_ANGLE = Math.atan2(AB_Y, AB_X)
+                const LINE_POS_X = LINE_X_1 + AB_X / 2
+                const LINE_POS_Y = LINE_Y_1 + AB_Y / 2
+
+                const LINE_WIDTH = 8
+
+                const isColliding = () => {
+                    const X = b.x
+                    const Y = b.y
+
+                    // Create virtual circle collision boundary
+                    const LINE_MOUSE_X = X - LINE_POS_X
+                    const LINE_MOUSE_Y = Y - LINE_POS_Y
+                    const LINE_MOUSE_DIS = Math.hypot(LINE_MOUSE_X, LINE_MOUSE_Y)
+
+                    // Touching the circle
+                    if (LINE_MOUSE_DIS < length / 2 + RADIUS_MOUSE) {
+
+                        // Get distance from first point to origin
+                        const AP_X = X - LINE_X_1
+                        const AP_Y = Y - LINE_Y_1
+
+                        // Find cross product to decide which side of the line we're on
+                        const cross = ((AB_X * AP_Y) - (AB_Y * AP_X)) / length
+                        const dot = ((AB_X * AP_X) + (AB_Y * AP_Y)) / Math.pow(length, 2)
+
+                        // Find the directional line normal
+                        const normX = AB_Y / length
+                        const normY = -AB_X / length
+
+                        // Calculate intersection
+                        const d = cross + RADIUS_MOUSE
+                        const dx = normX * d
+                        const dy = normY * d
+
+                        // If completely on right side of line or are bordering but in range
+                        if (cross > 0 || (d > 0 && dot > 0 && dot < 1)) {
+                            return {dx, dy, d}
+                        }
+
+                        // The circle is touching one of the line points
+                        else {
+                            const LINE_POINT_1 = pointIsInCircle(LINE_X_1, LINE_Y_1, X, Y, RADIUS_MOUSE)
+                            const LINE_POINT_2 = pointIsInCircle(LINE_X_2, LINE_Y_2, X, Y, RADIUS_MOUSE)
+                            const dic = point => {
+                                if (!point.d) return {dx: 0, dy: 0, d: 0}
+
+                                const edgeX = (point.dx / point.d) * RADIUS_MOUSE
+                                const edgeY = (point.dy / point.d) * RADIUS_MOUSE
+
+                                return {dx: point.dx-edgeX, dy: point.dy-edgeY, d: point.d - RADIUS_MOUSE}
+                            }
+                            if (LINE_POINT_1) return dic(LINE_POINT_1)
+                            if (LINE_POINT_2) return dic(LINE_POINT_2)
+                        }
+                    }
+
+                    return false
+                }
+
+                const touch = isColliding()
+
+                if (mouseClick || (b.fall && (b.y > cvs.height + RADIUS_MOUSE || b.x < -RADIUS_MOUSE || b.x > cvs.width + RADIUS_MOUSE || b.y < -RADIUS_MOUSE))){
+                    b.fall = !b.fall
+                    if (!b.fall) {
+                        size = 0
+                        carry = true
+                    }
+                    else {
+                        carry = false
+                        b.vx = mouseSpeed.x
+                        b.vy = mouseSpeed.y
+                        pos.length = 0
+                    }
+                }
+                if (b.fall) {
+                    b.vx *= Math.pow(.99, dt)
+                    b.vy *= Math.pow(.99, dt)
+
+                    b.vy += .5 * dt
+                    b.x += b.vx * dt
+                    b.y += b.vy * dt
+
+                    if (touch) {
+                        b.x += touch.dx
+                        b.y += touch.dy
+
+                        const BOUNCE = 1
+
+                        b.vx += touch.dx * BOUNCE
+                        b.vy += touch.dy * BOUNCE
+                    }
+                }
+                else {
+                    b.x = mouseX
+                    b.y = mouseY
+                    b.vy = 0
+                    b.vx = 0
+                }
+
+                size += .1 * dt
+                size = Math.min(size, 1)
+
+                ctx.beginPath()
+                ctx.fillStyle = (mouseDown ? '#ffb' : touch ? '#0f0' : '#fff')
+                ctx.arc(b.x, b.y, RADIUS_MOUSE * size, 0, Math.PI * 2)
+                ctx.fill()
+
+                ctx.beginPath()
+                ctx.fillStyle = '#f005'
+                ctx.arc(LINE_POS_X, LINE_POS_Y, length / 2, LINE_ANGLE, LINE_ANGLE + Math.PI)
+                ctx.fill()
+
+                ctx.beginPath()
+                ctx.strokeStyle = '#00f'
+                ctx.lineWidth = 2
+                ctx.arc(LINE_POS_X, LINE_POS_Y, length / 2, 0, Math.PI * 2)
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.strokeStyle = '#0f0'
+                ctx.lineWidth = 2
+                ctx.moveTo(LINE_X_1 - AB_X, LINE_Y_1 - AB_Y)
+                ctx.lineTo(LINE_X_2 + AB_X * 2, LINE_Y_2 + AB_Y * 2)
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.strokeStyle = '#654'
+                ctx.lineWidth = LINE_WIDTH
+                ctx.moveTo(LINE_X_1, LINE_Y_1)
+                ctx.lineTo(LINE_X_2, LINE_Y_2)
+                ctx.stroke()
+
+                // Reset
+                if (mouseClick) mouseClick = false
+                const old = performance.now()
+                requestAnimationFrame(() => update(old))
+            }
+
+            update(0)
+        </script>
+    </body>
+</html>

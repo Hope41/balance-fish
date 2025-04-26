@@ -1,0 +1,21 @@
+@font-face {
+    font-family: font;
+    src: url(born2bsporty-fs.regular.otf)
+}
+
+body {
+    background: #fff;
+    margin: 0;
+    overflow: hidden;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    touch-action: none;
+}
+
+canvas {
+    width: 100%;
+    height: 100%
+}
