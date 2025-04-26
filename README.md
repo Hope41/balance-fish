@@ -5,29 +5,32 @@ Balance the Grid, Save the City!
 ![banner](https://github.com/user-attachments/assets/f0a10c32-57ac-4984-beb0-a7b16ab22e9c)
 
 As a deep-sea fish (with legs), restore balance to the power grid to bring your city back to life!
-Quick Info
+
+##### Quick Info
 
     📱 Playable on mobile devices
     💻 Made for the Gamedev.js Jam 2025
 
-Overview
+### Overview
 
 Plug the cables into the substations to carry electricity further into the depths. Will the strange sea creatures help or hinder your quest to restore balance? ⚡
-Controls
+
+### Controls
 
     🌊 Hold W or UP to swim forward (or walk)
     🐟 Press the LEFT or RIGHT keys (A or D) to rotate
     🔁 Hold down R to restart the level
     💥 Hold X to balance or detach cables
 
-Balance by Name, FISH by Nature
+### Balance by Name, FISH by Nature
 
 Humanity knows very little about the depths of the ocean. But today a mysterious creature emerged from its depths: the Balance Fish.
 
 It's a deeply unfortunate moment in the deep.
 
 Your underwater city's power supply has become unbalanced. Embark on a mission to harness energy from the Nuclear Reactor, balance the grid, and save the city! ⚡
-Developer Notes 
+
+### Developer Notes 
 
 Hello there! I'm Hope41 👋
 
