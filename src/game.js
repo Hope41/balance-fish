@@ -299,7 +299,7 @@ class Game {
         this.cvs.width = innerWidth * devicePixelRatio
         this.cvs.height = innerHeight * devicePixelRatio + 1
 
-        this.box = Math.min(this.cvs.width, this.cvs.height) * SCALE * .5
+        this.box = Math.min(this.cvs.width, this.cvs.height) * SCALE * .65
         this.scale = (this.cvs.width + this.cvs.height) * SCALE
     }
 
