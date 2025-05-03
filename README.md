@@ -51,7 +51,7 @@ They say it's the weird games that get noticed. I'm not sure that's true - but h
 * * *
 
 More games at https://joachimford.uk!
-Follow me on GitHub!
+Follow on GitHub!
 
 * * *
 
