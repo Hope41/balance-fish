@@ -163,24 +163,32 @@ let x1PAD = 0
 let x2PAD = 0
 let yPAD = 0
 
-addEventListener('mousedown', e => game.onMouseDown(e))
-addEventListener('touchstart', e => game.touchStart(e))
+// addEventListener('mousedown', e => {
+//     game.onMouseDown(e)
+// })
+// addEventListener('touchstart', e => {
+//     game.touchStart(e)
+// })
 
 // Up mouse
-addEventListener('mouseup', e => game.onMouseUp(e))
+// addEventListener('mouseup', e => {
+//     game.onMouseUp(e)
+// })
 
-addEventListener('touchend', e => {
-    e.preventDefault()
-    game.mouseDown = false
-    game.cancelTouches(e)
-})
+// addEventListener('touchend', e => {
+//     e.preventDefault()
+//     game.mouseDown = false
+//     game.cancelTouches(e)
+// })
 
-addEventListener('touchleave', e => {
-    e.preventDefault()
-    game.mouseDown = false
-    game.cancelTouches(e)
-})
+// addEventListener('touchleave', e => {
+//     e.preventDefault()
+//     game.mouseDown = false
+//     game.cancelTouches(e)
+// })
 
 // Move mouse
-addEventListener('mousemove', e => game.onMouseMove(e))
-addEventListener('touchmove', e => game.touchMove(e))
+// addEventListener('mousemove', e => {
+//     game.onMouseMove(e)
+// })
+// addEventListener('touchmove', e => game.touchMove(e))

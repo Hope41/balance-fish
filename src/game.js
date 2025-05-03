@@ -51,6 +51,20 @@ class Game {
         addEventListener('mousemove', e => this.onMouseMove(e))
         addEventListener('mousedown', e => this.onMouseDown(e))
         addEventListener('mouseup', e => this.onMouseUp(e))
+
+        addEventListener('touchmove', e => this.touchMove(e))
+        addEventListener('touchstart', e => this.touchStart(e))
+        addEventListener('touchend', e => {
+            e.preventDefault()
+            this.mouseDown = false
+            this.cancelTouches(e)
+        })
+        addEventListener('touchleave', e => {
+            e.preventDefault()
+            this.mouseDown = false
+            this.cancelTouches(e)
+        })
+
         addEventListener('wheel', e => e.preventDefault(), {passive: false})
 
         // Initialize
@@ -285,7 +299,7 @@ class Game {
         this.cvs.width = innerWidth * devicePixelRatio
         this.cvs.height = innerHeight * devicePixelRatio + 1
 
-        this.box = Math.min(innerWidth, innerHeight) * SCALE
+        this.box = Math.min(this.cvs.width, this.cvs.height) * SCALE * .5
         this.scale = (this.cvs.width + this.cvs.height) * SCALE
     }
 
