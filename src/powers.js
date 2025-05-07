@@ -443,7 +443,7 @@ class Power {
                     messagePad + messageH / 2 + textSize * FONT_OFT)
             })
         }
-        if (collide(box, heroBox) && this.connections.length) {
+        if (collide(box, heroBox) && this.connections.length && game.level != 'reactor') {
             this.message += .04 * this.dt
 
             if (!this.disperseTime && game.key.danger) {
