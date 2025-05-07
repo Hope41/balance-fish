@@ -188,7 +188,7 @@ class Cable {
 
         this.oftY *= Math.pow(.95, this.dt)
 
-        if (hero.dt > .5 && !this.connected && hero.holding.shape.id == this.id && game.key.danger) {
+        if (hero.dt > .5 && !this.connected && hero.holding.shape.id == this.id && game.key.danger && game.level != 'reactor') {
             this.connected = false
             this.beingHeld = false
             this.snap()
