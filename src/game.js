@@ -933,7 +933,7 @@ class Game {
             )
             makeButton(
                 () => {
-                    window.location = 'https://joachimford.uk'
+                    window.open('https://joachimford.uk', '_blank')
                 },
                 (hover = false, click = false) => {
                     drawButton('More Games', hover, click)
@@ -1405,7 +1405,7 @@ class Game {
                     this.cvs.height / 2 + fontSize * FONT_OFT - this.box * 30)
 
                 this.ctx.fillText(
-                    'using artificial intelligence',
+                    'using Artificial Intelligence',
                     this.cvs.width / 2,
                     this.cvs.height / 2 + fontSize * FONT_OFT * 4.5 - this.box * 30)
 
