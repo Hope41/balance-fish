@@ -237,7 +237,7 @@ class Shrimp {
             const breakable = this.cable.strength <= 1
 
             // Only count down when near goal
-            if (this.cable.thread.length > 10) {
+            if (this.cable.thread.length > 20) {
                 if (d <= this.fear) {
                     this.attack -= this.dt
                 }
