@@ -6,6 +6,8 @@ Balance the Grid, Save the City!
 
 As a deep-sea fish (with legs), restore balance to the power grid to bring your city back to life!
 
+## [PLAY NOW](https://joachimford.uk/balance-fish)
+
 ##### Quick Info
 
 - 📱 Playable on mobile devices
