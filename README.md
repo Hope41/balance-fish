@@ -8,8 +8,8 @@ As a deep-sea fish (with legs), restore balance to the power grid to bring your 
 
 ##### Quick Info
 
-    📱 Playable on mobile devices
-    💻 Made for the Gamedev.js Jam 2025
+📱 Playable on mobile devices
+💻 Made for the Gamedev.js Jam 2025
 
 ### Overview
 
@@ -17,10 +17,10 @@ Plug the cables into the substations to carry electricity further into the depth
 
 ### Controls
 
-    🌊 Hold W or UP to swim forward (or walk)
-    🐟 Press the LEFT or RIGHT keys (A or D) to rotate
-    🔁 Hold down R to restart the level
-    💥 Hold X to balance or detach cables
+🌊 Hold W or UP to swim forward (or walk)
+🐟 Press the LEFT or RIGHT keys (A or D) to rotate
+🔁 Hold down R to restart the level
+💥 Hold X to balance or detach cables
 
 ### Balance by Name, FISH by Nature
 
@@ -36,17 +36,17 @@ Hello there! I'm Hope41 👋
 
 Here's some additional info about Balance FISH...
 
-    Made in pure JavaScript, no libraries
+- Made in pure JavaScript, no libraries
 
-    Balance FISH was made in 13 days for the Gamedev.js Jam 2025
+- Balance FISH was made in 13 days for the Gamedev.js Jam 2025
 
-    No Artificial Intelligence was used to create this game
+- No Artificial Intelligence was used to create this game
 
-    Music made on a whim one evening, when I realised the game might suffer without some noise to hum along to 🎶
+- Music made on a whim one evening, when I realised the game might suffer without some noise to hum along to 🎶
 
-    All sound effects sourced from authentic Pixabay sounds
+- All sound effects sourced from authentic Pixabay sounds
 
-They say it's the weird games that get noticed. I'm not sure that's true - but hey, here we are anyway — with a strange, deep-sea fish (with legs, don't forget), trying to balance an electrical system to bring his underwater city back to life.
+They say it's the weird games that get noticed. I'm not sure that's true, but here we are anyway, with a strange fish (with legs), connecting an underwater electrical system to bring his city back to life.
 
 * * *
 
