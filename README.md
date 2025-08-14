@@ -17,10 +17,10 @@ Plug the cables into the substations to carry electricity further into the depth
 
 ### Controls
 
-- 🌊 Hold <kbd>W</kbd> or UP to swim forward (or walk)
-- 🐟 Press the LEFT or RIGHT keys (A or D) to rotate
-- 🔁 Hold down R to restart the level
-- 💥 Hold X to balance or detach cables
+- 🌊 Hold <kbd>W</kbd> or <kbd>UP</kbd> to swim forward (or walk)
+- 🐟 Press the <kbd>LEFT</kbd> or <kbd>RIGHT</kbd> keys (<kbd>A</kbd> or <kbd>D</kbd>) to rotate
+- 🔁 Hold down <kbd>R</kbd> to restart the level
+- 💥 Hold <kbd>X</kbd> to balance or detach cables
 
 ### Balance by Name, FISH by Nature
 
