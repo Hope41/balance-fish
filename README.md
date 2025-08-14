@@ -8,8 +8,8 @@ As a deep-sea fish (with legs), restore balance to the power grid to bring your 
 
 ##### Quick Info
 
-📱 Playable on mobile devices
-💻 Made for the Gamedev.js Jam 2025
+- 📱 Playable on mobile devices
+- 💻 Made for the Gamedev.js Jam 2025
 
 ### Overview
 
@@ -17,10 +17,10 @@ Plug the cables into the substations to carry electricity further into the depth
 
 ### Controls
 
-🌊 Hold W or UP to swim forward (or walk)
-🐟 Press the LEFT or RIGHT keys (A or D) to rotate
-🔁 Hold down R to restart the level
-💥 Hold X to balance or detach cables
+- 🌊 Hold W or UP to swim forward (or walk)
+- 🐟 Press the LEFT or RIGHT keys (A or D) to rotate
+- 🔁 Hold down R to restart the level
+- 💥 Hold X to balance or detach cables
 
 ### Balance by Name, FISH by Nature
 
@@ -28,7 +28,7 @@ Humanity knows very little about the depths of the ocean. But today a mysterious
 
 It's a deeply unfortunate moment in the deep.
 
-Your underwater city's power supply has become unbalanced. Embark on a mission to harness energy from the Nuclear Reactor, balance the grid, and save the city! ⚡
+Your underwater city's power supply has become unbalanced. Embark on a mission to harness energy from the Nuclear Reactor, balance the grid, and save the city! ✨ 
 
 ### Developer Notes 
 
@@ -42,15 +42,15 @@ Here's some additional info about Balance FISH...
 
 - No Artificial Intelligence was used to create this game
 
-- Music made on a whim one evening, when I realised the game might suffer without some noise to hum along to 🎶
+- Self-composed music 🎶
 
-- All sound effects sourced from authentic Pixabay sounds
+- Sound effects sourced from authentic Pixabay sounds
 
 They say it's the weird games that get noticed. I'm not sure that's true, but here we are anyway, with a strange fish (with legs), connecting an underwater electrical system to bring his city back to life.
 
 * * *
 
-More games at https://joachimford.uk!
+### More games at https://joachimford.uk!
 Follow on GitHub!
 
 * * *
